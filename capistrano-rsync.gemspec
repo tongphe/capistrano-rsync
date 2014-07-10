@@ -1,9 +1,9 @@
 require File.expand_path("../lib/capistrano/rsync/version", __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.name = "capistrano-rsync"
+  gem.name = "capistrano-rsync-bladrak"
   gem.version = Capistrano::Rsync::VERSION
-  gem.homepage = "https://github.com/moll/capistrano-rsync"
+  gem.homepage = "https://github.com/Bladrak/capistrano-rsync"
   gem.summary = <<-end.strip.gsub(/\s*\n\s*/, " ")
     Deploy with Rsync from any local (or remote) repository.
     Capistrano v3 ready!
@@ -19,8 +19,8 @@ Gem::Specification.new do |gem|
     Suitable for deploying any apps, be it Ruby or Node.js.
   end
 
-  gem.author = "Andri Möll"
-  gem.email = "andri@dot.ee"
+  gem.author = "Andri Möll, Hugo Briand"
+  gem.email = "andri@dot.ee, h.briand@gmail.com"
   gem.license = "LAGPL"
 
   gem.files = `git ls-files`.split($/)

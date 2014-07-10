@@ -1,4 +1,4 @@
-NAME = capistrano-rsync
+NAME = capistrano-rsync-bladrak
 
 love:
 	@echo "Feel like makin' love."
