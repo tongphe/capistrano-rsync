@@ -90,6 +90,7 @@ namespace :rsync do
   task :create_release => %w[release]
   
   # internally needed by capistrano's "deploy.rake"
+  desc 'Locally determine the revision that will be deployed'
   task :set_current_revision do
     run_locally do
       within fetch(:rsync_stage) do
