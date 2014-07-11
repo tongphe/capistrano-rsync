@@ -43,6 +43,8 @@ task :rsync => %w[rsync:stage] do
     rsync.concat fetch(:rsync_options)
     rsync << File.join(fetch(:rsync_stage), File.join(fetch(:rsync_target_dir), ""))
     rsync << "#{user}#{role.hostname}:#{rsync_cache.call || release_path}"
+    
+    puts "Executing rsync: #{rsync}"
 
     Kernel.system *rsync
   end
@@ -69,6 +71,8 @@ namespace :rsync do
     clone = %W[git clone]
     clone << fetch(:repo_url, ".")
     clone << fetch(:rsync_stage)
+    puts "Executing rsync:create_stage: #{clone}"
+
     Kernel.system *clone
   end
 
@@ -77,8 +81,11 @@ namespace :rsync do
     Dir.chdir fetch(:rsync_stage) do
       update = %W[git fetch --quiet --all --prune]
       Kernel.system *update
+      puts "Executing rsync:stage:update #{update}"
 
       checkout = %W[git reset --hard origin/#{fetch(:branch)}]
+      puts "Executing rsync:stage:checkout #{checkout}"
+
       Kernel.system *checkout
     end
   end
@@ -89,6 +96,7 @@ namespace :rsync do
     next if !fetch(:rsync_cache)
 
     copy = %(#{fetch(:rsync_copy)} "#{rsync_cache.call}/" "#{release_path}/")
+    puts "Executing rsync:release #{copy}"
     on roles(:all).each do execute copy end
   end
 
