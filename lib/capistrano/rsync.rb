@@ -16,7 +16,7 @@ set :rsync_stage, "tmp/deploy"
 # Capistrano::Rsync will sync straight to the release path.
 set :rsync_cache, "shared/deploy"
 
-set :rsync_target_dir, "/"
+set :rsync_target_dir, ""
 
 rsync_cache = lambda do
   cache = fetch(:rsync_cache)
@@ -34,7 +34,7 @@ task :rsync => %w[rsync:stage] do
 
     rsync = %w[rsync]
     rsync.concat fetch(:rsync_options)
-    rsync << fetch(:rsync_stage) + fetch(:rsync_target_dir)
+    rsync << File.join(fetch(:rsync_stage), File.join(fetch(:rsync_target_dir), ""))
     rsync << "#{user}#{role.hostname}:#{rsync_cache.call || release_path}"
 
     Kernel.system *rsync
@@ -88,15 +88,4 @@ namespace :rsync do
   # Matches the naming scheme of git tasks.
   # Plus was part of the public API in Capistrano::Rsync <= v0.2.1.
   task :create_release => %w[release]
-  
-  # internally needed by capistrano's "deploy.rake"
-  desc 'Locally determine the revision that will be deployed'
-  task :set_current_revision do
-    run_locally do
-      within fetch(:rsync_stage) do
-        rev = capture(:git, 'rev-parse', 'HEAD')
-        set :current_revision, rev
-      end
-    end
-  end
 end
