@@ -43,7 +43,7 @@ task :rsync => %w[rsync:stage] do
     rsync.concat fetch(:rsync_options)
     rsync << File.join(fetch(:rsync_stage), File.join(fetch(:rsync_target_dir), ""))
     rsync << "#{user}#{role.hostname}:#{rsync_cache.call || release_path}"
-    
+
     puts "Executing rsync: #{rsync}"
 
     Kernel.system *rsync
@@ -53,11 +53,11 @@ end
 namespace :rsync do
   task :hook_scm do
     Rake::Task.define_task("#{scm}:check") do
-      invoke "rsync:check" 
+      invoke "rsync:check"
     end
 
     Rake::Task.define_task("#{scm}:create_release") do
-      invoke "rsync:release" 
+      invoke "rsync:release"
     end
   end
 
@@ -83,7 +83,8 @@ namespace :rsync do
       Kernel.system *update
       puts "Executing rsync:stage:update #{update}"
 
-      checkout = %W[git reset --hard origin/#{fetch(:branch)}]
+      target = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : "origin/#{fetch(:branch)}"
+      checkout = %W[git reset --hard #{target}]
       puts "Executing rsync:stage:checkout #{checkout}"
 
       Kernel.system *checkout
