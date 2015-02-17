@@ -5,6 +5,7 @@ namespace :load do
 
     set :rsync_options, []
     set :rsync_copy, "rsync --archive --acls --xattrs"
+    set :rsync_sparse_checkout, []
 
     # Stage is used on your local machine for rsyncing from.
     set :rsync_stage, "tmp/deploy"
@@ -44,8 +45,6 @@ task :rsync => %w[rsync:stage] do
     rsync << File.join(fetch(:rsync_stage), File.join(fetch(:rsync_target_dir), ""))
     rsync << "#{user}#{role.hostname}:#{rsync_cache.call || release_path}"
 
-    puts "Executing rsync: #{rsync}"
-
     Kernel.system *rsync
   end
 end
@@ -68,12 +67,51 @@ namespace :rsync do
   task :create_stage do
     next if File.directory?(fetch(:rsync_stage))
 
-    clone = %W[git clone]
-    clone << fetch(:repo_url, ".")
-    clone << fetch(:rsync_stage)
-    puts "Executing rsync:create_stage: #{clone}"
+    if fetch(:rsync_sparse_checkout, []).any?
+      invoke "rsync:create_stage:sparse"
+    else
+      invoke "rsync:create_stage:clone"
+    end
+  end
 
-    Kernel.system *clone
+  namespace :create_stage do
+    task :sparse do
+      init = %W[git init]
+      init << fetch(:rsync_stage)
+
+      Kernel.system *init
+
+      Dir.chdir fetch(:rsync_stage) do
+        remote = %W[git remote add -f origin]
+        remote << fetch(:repo_url)
+        Kernel.system *remote
+
+        sparse = %W[git config core.sparsecheckout true]
+        Kernel.system *sparse
+
+        sparse_dir = %W[mkdir .git/info]
+        Kernel.system *sparse_dir
+
+        fetch(:rsync_sparse_checkout).each do |sparse_dir|
+          sparse_checkout = %W[echo]
+          sparse_checkout << sparse_dir
+          sparse_checkout << ">>"
+          sparse_checkout << ".git/info/sparse-checkout"
+          Kernel.system *sparse_checkout
+        end
+
+        pull = %W[git pull origin]
+        pull << fetch(:rsync_stage)
+        Kernel.system *pull
+      end
+    end
+
+    task :clone do
+      clone = %W[git clone]
+      clone << fetch(:repo_url, ".")
+      clone << fetch(:rsync_stage)
+      Kernel.system *clone
+    end
   end
 
   desc "Stage the repository in a local directory."
@@ -81,11 +119,9 @@ namespace :rsync do
     Dir.chdir fetch(:rsync_stage) do
       update = %W[git fetch --quiet --all --prune]
       Kernel.system *update
-      puts "Executing rsync:stage:update #{update}"
 
       target = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : "origin/#{fetch(:branch)}"
       checkout = %W[git reset --hard #{target}]
-      puts "Executing rsync:stage:checkout #{checkout}"
 
       Kernel.system *checkout
     end
@@ -97,7 +133,6 @@ namespace :rsync do
     next if !fetch(:rsync_cache)
 
     copy = %(#{fetch(:rsync_copy)} "#{rsync_cache.call}/" "#{release_path}/")
-    puts "Executing rsync:release #{copy}"
     on roles(:all).each do execute copy end
   end
 

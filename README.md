@@ -98,7 +98,8 @@ repo_url      | `.` | The path or URL to a Git repository to clone from.
 branch        | `master` | The Git branch to checkout.  
 rsync_stage   | `tmp/deploy` | Path where to clone your repository for staging, checkouting and rsyncing. Can be both relative or absolute.
 rsync_cache   | `shared/deploy` | Path where to cache your repository on the server to avoid rsyncing from scratch each time. Can be both relative or absolute.<br> Set to `nil` if you want to disable the cache.
-rsync_options | `[]` | Array of options to pass to `rsync`.  
+rsync_options | `[]` | Array of options to pass to `rsync`.
+rsync_sparse_checkout | `[]` | Array of directories to checkout (checks out all if empty)
 
 
 License

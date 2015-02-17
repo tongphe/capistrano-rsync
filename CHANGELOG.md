@@ -1,3 +1,6 @@
+## 1.1.0 (Jan 17, 2015)
+- Added ``:rsync_sparse_checkout`` option
+
 ## 1.0.3 (Jul 10, 2014)
 - Added ``set_current_revision`` task
 - Added ``:rsync_target_dir`` variable to specify the target dir in the rsync operation
