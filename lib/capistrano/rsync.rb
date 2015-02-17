@@ -5,7 +5,12 @@ namespace :load do
 
     set :rsync_options, []
     set :rsync_copy, "rsync --archive --acls --xattrs"
+
+    # Sparse checkout allows to checkout only part of the repository
     set :rsync_sparse_checkout, []
+
+    # You may not need the whole history, put to false to get it whole
+    set :rsync_depth, 1
 
     # Stage is used on your local machine for rsyncing from.
     set :rsync_stage, "tmp/deploy"
@@ -30,6 +35,11 @@ rsync_cache = lambda do
   cache = fetch(:rsync_cache)
   cache = deploy_to + "/" + cache if cache && cache !~ /^\//
   cache
+end
+
+rsync_target = lambda do
+  target = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : "origin/#{fetch(:branch)}"
+  target
 end
 
 Rake::Task["deploy:check"].enhance ["rsync:hook_scm"]
@@ -82,9 +92,15 @@ namespace :rsync do
       Kernel.system *init
 
       Dir.chdir fetch(:rsync_stage) do
-        remote = %W[git remote add -f origin]
+        remote = %W[git remote add origin --quiet]
         remote << fetch(:repo_url)
         Kernel.system *remote
+
+        fetch = %W[git fetch --quiet --prune --all -t]
+        if !!fetch(:rsync_depth, false)
+          fetch << "--depth=#{fetch(:rsync_depth)}"
+        end
+        Kernel.system *fetch
 
         sparse = %W[git config core.sparsecheckout true]
         Kernel.system *sparse
@@ -100,16 +116,23 @@ namespace :rsync do
           Kernel.system *sparse_checkout
         end
 
-        pull = %W[git pull origin]
-        pull << fetch(:rsync_stage)
+        pull = %W[git pull --quiet]
+        if !!fetch(:rsync_depth, false)
+          pull << "--depth=#{fetch(:rsync_depth)}"
+        end
+        pull << "origin"
+        pull << rsync_target.call
         Kernel.system *pull
       end
     end
 
     task :clone do
-      clone = %W[git clone]
+      clone = %W[git clone --quiet]
       clone << fetch(:repo_url, ".")
       clone << fetch(:rsync_stage)
+      if !!fetch(:rsync_depth, false)
+        clone << "--depth=#{fetch(:rsync_depth)}"
+      end
       Kernel.system *clone
     end
   end
@@ -118,11 +141,12 @@ namespace :rsync do
   task :stage => %w[create_stage] do
     Dir.chdir fetch(:rsync_stage) do
       update = %W[git fetch --quiet --all --prune]
+      if !!fetch(:rsync_depth, false)
+        update << "--depth=#{fetch(:rsync_depth)}"
+      end
       Kernel.system *update
 
-      target = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : "origin/#{fetch(:branch)}"
-      checkout = %W[git reset --hard #{target}]
-
+      checkout = %W[git reset --quiet --hard #{rsync_target.call}]
       Kernel.system *checkout
     end
   end

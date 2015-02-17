@@ -100,6 +100,7 @@ rsync_stage   | `tmp/deploy` | Path where to clone your repository for staging, 
 rsync_cache   | `shared/deploy` | Path where to cache your repository on the server to avoid rsyncing from scratch each time. Can be both relative or absolute.<br> Set to `nil` if you want to disable the cache.
 rsync_options | `[]` | Array of options to pass to `rsync`.
 rsync_sparse_checkout | `[]` | Array of directories to checkout (checks out all if empty)
+rsync_depth   | `1` | Sets the --depth argument value for the git operations; this is set to 1 by default as you won't need the git history
 
 
 License
