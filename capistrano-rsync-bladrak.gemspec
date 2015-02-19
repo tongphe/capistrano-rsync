@@ -5,22 +5,20 @@ Gem::Specification.new do |gem|
   gem.version = Capistrano::Rsync::VERSION
   gem.homepage = "https://github.com/Bladrak/capistrano-rsync"
   gem.summary = <<-end.strip.gsub(/\s*\n\s*/, " ")
-    Deploy with Rsync from any local (or remote) repository.
+    Increase deployment performance through rsync
     Capistrano v3 ready!
+    Originally from capistrano-rsync
   end
 
   gem.description = <<-end.strip.gsub(/\s*?\n(\n?)\s*/, " \\1\\1")
-    Deploy with Rsync to your server from any local (or remote) repository.
+    This is a rsync 'scm' for Capistrano v3, drastically improving deployment
+    performance, and avoiding you to install git on production servers.
 
-    Saves you the need to install Git on your production machine and deploy all
-    of your development files each time!
-
-    Works with the new Capistrano v3!
-    Suitable for deploying any apps, be it Ruby or Node.js.
+    This was originally a fork of capistrano-rsync.
   end
 
-  gem.author = "Andri Möll, Hugo Briand"
-  gem.email = "andri@dot.ee, h.briand@gmail.com"
+  gem.author = "Hugo Briand, Andri Möll"
+  gem.email = "h.briand@gmail.com, andri@dot.ee"
   gem.license = "LAGPL"
 
   gem.files = `git ls-files`.split($/)

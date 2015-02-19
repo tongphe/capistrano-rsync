@@ -21,7 +21,6 @@ namespace :load do
     set :rsync_cache, "shared/deploy"
 
     set :rsync_target_dir, ""
-
   end
 end
 
@@ -43,7 +42,6 @@ rsync_target = lambda do
 end
 
 Rake::Task["deploy:check"].enhance ["rsync:hook_scm"]
-# Rake::Task["deploy:updating"].enhance ["rsync:hook_scm"]
 
 desc "Stage and rsync to the server (or its cache)."
 task :rsync => %w[rsync:stage] do
@@ -60,6 +58,16 @@ task :rsync => %w[rsync:stage] do
 end
 
 namespace :rsync do
+  desc 'Locally determine the revision that will be deployed'
+  task :set_current_revision do
+    run_locally do
+      within fetch(:rsync_stage) do
+        rev = capture(:git, 'rev-parse', 'HEAD')
+        set :current_revision, rev
+      end
+    end
+  end
+
   task :hook_scm do
     Rake::Task.define_task("#{scm}:check") do
       invoke "rsync:check"
@@ -71,28 +79,24 @@ namespace :rsync do
   end
 
   task :check do
-    # Everything's a-okay inherently!
+    next if !fetch(:rsync_cache)
+
+    on release_roles :all do
+      execute :mkdir, '-pv', File.join("#{fetch(:deploy_to)}", "#{fetch(:rsync_cache)}")
+    end
   end
 
   task :create_stage do
     next if File.directory?(fetch(:rsync_stage))
 
     if fetch(:rsync_sparse_checkout, []).any?
-      invoke "rsync:create_stage:sparse"
-    else
-      invoke "rsync:create_stage:clone"
-    end
-  end
-
-  namespace :create_stage do
-    task :sparse do
-      init = %W[git init]
+      init = %W[git init --quiet]
       init << fetch(:rsync_stage)
 
       Kernel.system *init
 
       Dir.chdir fetch(:rsync_stage) do
-        remote = %W[git remote add origin --quiet]
+        remote = %W[git remote add origin]
         remote << fetch(:repo_url)
         Kernel.system *remote
 
@@ -108,13 +112,11 @@ namespace :rsync do
         sparse_dir = %W[mkdir .git/info]
         Kernel.system *sparse_dir
 
-        fetch(:rsync_sparse_checkout).each do |sparse_dir|
-          sparse_checkout = %W[echo]
-          sparse_checkout << sparse_dir
-          sparse_checkout << ">>"
-          sparse_checkout << ".git/info/sparse-checkout"
-          Kernel.system *sparse_checkout
-        end
+        open('.git/info/sparse-checkout', 'a') { |f|
+          fetch(:rsync_sparse_checkout).each do |sparse_dir|
+            f.puts sparse_dir
+          end
+        }
 
         pull = %W[git pull --quiet]
         if !!fetch(:rsync_depth, false)
@@ -124,9 +126,7 @@ namespace :rsync do
         pull << rsync_target.call
         Kernel.system *pull
       end
-    end
-
-    task :clone do
+    else
       clone = %W[git clone --quiet]
       clone << fetch(:repo_url, ".")
       clone << fetch(:rsync_stage)
