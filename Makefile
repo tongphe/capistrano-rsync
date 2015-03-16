@@ -6,7 +6,7 @@ love:
 pack:
 	gem build $(NAME).gemspec
 
-publish:
+publish: pack
 	gem push $(NAME)-*.gem
 
 clean:
