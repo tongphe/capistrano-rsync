@@ -169,7 +169,9 @@ namespace :rsync do
     next if !has_roles?
 
     copy = %(#{fetch(:rsync_copy)} "#{rsync_cache.call}/" "#{release_path}/")
-    on roles(:all).each do execute copy end
+    on roles(:all) do |host|
+      execute copy
+    end
   end
 
   # Matches the naming scheme of git tasks.
