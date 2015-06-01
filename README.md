@@ -28,7 +28,7 @@ Using
 -----
 Install with:
 ```
-gem install capistrano-rsync
+gem install capistrano-rsync-bladrak
 ```
 
 Require it at the top of your `Capfile` (or `config/deploy.rb`):
