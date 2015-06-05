@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.summary = <<-end.strip.gsub(/\s*\n\s*/, " ")
     Increase deployment performance through rsync
     Capistrano v3 ready!
-    Originally from capistrano-rsync
+    This is a maintained fork of capistrano-rsync
   end
 
   gem.description = <<-end.strip.gsub(/\s*?\n(\n?)\s*/, " \\1\\1")

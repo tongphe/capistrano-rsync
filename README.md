@@ -1,7 +1,12 @@
 Capistrano::Rsync for Capistrano v3
 ===================================
-[![Gem version][gem-badge]](http://badge.fury.io/rb/capistrano-rsync)
-[gem-badge]: https://badge.fury.io/rb/capistrano-rsync.png
+
+This repository is a fork of https://github.com/moll/capistrano-rsync which doesn't seem to be maintained anymore.
+
+It has all the capabilities of the original repo, and some other features. Moreover, I will try to maintain it.  
+
+[![Gem Version](https://badge.fury.io/rb/capistrano-rsync-bladrak.svg)](http://badge.fury.io/rb/capistrano-rsync-bladrak)
+[gem-badge]: https://badge.fury.io/rb/capistrano-rsync-bladrak.svg
 
 **Deploy with Rsync** to your server from any local (or remote) repository when
 using [**Capistrano**](http://www.capistranorb.com/).  Saves you from having to
@@ -20,8 +25,14 @@ machine before deploying.
 - Currently works only with Git (as does Capistrano v3), so please shout out
   your interest in other SCMs.
 
-Using [Mina](http://nadarei.co/mina/) instead of Capistrano? I've built
-[Mina::Rsync](https://github.com/moll/mina-rsync) as well.
+Added features
+--------------
+
+Compared to moll's version, I added the following features:
+* setting the ``:rsync_target_dir`` option in order to choose where the code will be stored locally
+* implemented a ``set_current_revision`` task to be compliant with Capistrano
+* added an option to sparse checkout the repository before rsyncing it, improving performance for large repositories
+* added an option to limit the clone depth (defaults to 1) to limit used space while deploying
 
 
 Using
@@ -122,6 +133,4 @@ About
 **[Andri Möll](http://themoll.com)** made this happen.  
 [Monday Calendar](https://mondayapp.com) was the reason I needed this.
 
-If you find Capistrano::Rsync needs improving, please don't hesitate to type to
-me now at [andri@dot.ee](mailto:andri@dot.ee) or [create an issue
-online](https://github.com/moll/capistrano-rsync/issues).
+**[Hugo Briand](http://about.me/hbriand)** forked it, maintains it, and adds some features.
