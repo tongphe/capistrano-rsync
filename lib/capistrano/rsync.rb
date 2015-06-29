@@ -21,6 +21,8 @@ namespace :load do
     set :rsync_cache, "shared/deploy"
 
     set :rsync_target_dir, ""
+
+    set :enable_git_submodules, false
   end
 end
 
@@ -142,6 +144,9 @@ namespace :rsync do
       if !!fetch(:rsync_depth, false)
         clone << "--depth=#{fetch(:rsync_depth)}"
       end
+      if fetch(:enable_git_submodules)
+        clone << "--recursive"
+      end
       Kernel.system *clone
     end
   end
@@ -156,6 +161,11 @@ namespace :rsync do
         update << "--depth=#{fetch(:rsync_depth)}"
       end
       Kernel.system *update
+
+      if fetch(:enable_git_submodules)
+	submodules = %W[git submodule update]
+	Kernel.system *submodules
+      end
 
       checkout = %W[git reset --quiet --hard #{rsync_target.call}]
       Kernel.system *checkout
