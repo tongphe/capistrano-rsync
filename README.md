@@ -42,9 +42,9 @@ Install with:
 gem install capistrano-rsync-bladrak
 ```
 
-Require it at the top of your `Capfile` (or `config/deploy.rb`):
-```ruby
-require "capistrano/rsync"
+Set rsync as the SCM to use
+```
+set :scm, :rsync
 ```
 
 Set some `rsync_options` to your liking:
@@ -96,6 +96,23 @@ after "rsync:stage", "precompile"
 ### Deploy release without symlinking the current directory
 ```
 cap rsync:release
+```
+
+Troubleshooting
+---------------
+If you need to hook after rsync:stage in your deploy.rb, the rsync namespace is not loaded yet.
+
+So do it like this in your deploy.rb:
+```
+namespace :rsync do
+    # Create an empty task to hook with. Implementation will be come next
+    task :stage
+
+    # Then add your hook
+    after :stage, :my_task do
+      # Do some stuff.
+    end
+end
 ```
 
 
