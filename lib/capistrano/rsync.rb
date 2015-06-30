@@ -40,7 +40,7 @@ end
 Rake::Task["deploy:check"].enhance ["rsync:hook_scm"]
 
 desc "Stage and rsync to the server (or its cache)."
-task :rsync => %w[rsync:stage] do
+task :rsync => %w[rsync:stage_done] do
   on release_roles(:all) do |role|
     user = role.user + "@" if !role.user.nil?
 
@@ -166,6 +166,8 @@ namespace :rsync do
       Kernel.system *checkout
     end
   end
+
+  task :stage_done => %w[stage]
 
   desc "Copy the code to the releases directory."
   task :release => %w[rsync] do

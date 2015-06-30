@@ -82,7 +82,7 @@ set :rsync_options, %w[
 ```
 
 ### Precompile assets before deploy
-Capistrano::Rsync runs `rsync:stage` before rsyncing. Hook to that like this:
+Capistrano::Rsync runs `rsync:stage_done` before rsyncing. Hook to that like this:
 ```ruby
 task :precompile do
   Dir.chdir fetch(:rsync_stage) do
@@ -90,7 +90,7 @@ task :precompile do
   end
 end
 
-after "rsync:stage", "precompile"
+after "rsync:stage_done", "precompile"
 ```
 
 ### Deploy release without symlinking the current directory
@@ -100,16 +100,16 @@ cap rsync:release
 
 Troubleshooting
 ---------------
-If you need to hook after rsync:stage in your deploy.rb, the rsync namespace is not loaded yet.
+If you need to hook after rsync:stage_done in your deploy.rb, the rsync namespace is not loaded yet.
 
 So do it like this in your deploy.rb:
 ```
 namespace :rsync do
     # Create an empty task to hook with. Implementation will be come next
-    task :stage
+    task :stage_done
 
     # Then add your hook
-    after :stage, :my_task do
+    after :stage_done, :my_task do
       # Do some stuff.
     end
 end
