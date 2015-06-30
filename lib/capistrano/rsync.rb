@@ -33,7 +33,7 @@ rsync_cache = lambda do
 end
 
 rsync_target = lambda do
-  target = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : "origin/#{fetch(:branch)}"
+  target = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : fetch(:branch)
   target
 end
 
