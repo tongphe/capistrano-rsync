@@ -42,9 +42,9 @@ Install with:
 gem install capistrano-rsync-bladrak
 ```
 
-Require it at the top of your `Capfile` (or `config/deploy.rb`):
-```ruby
-require "capistrano/rsync"
+Set rsync as the SCM to use
+```
+set :scm, :rsync
 ```
 
 Set some `rsync_options` to your liking:
@@ -82,7 +82,7 @@ set :rsync_options, %w[
 ```
 
 ### Precompile assets before deploy
-Capistrano::Rsync runs `rsync:stage` before rsyncing. Hook to that like this:
+Capistrano::Rsync runs `rsync:stage_done` before rsyncing. Hook to that like this:
 ```ruby
 task :precompile do
   Dir.chdir fetch(:rsync_stage) do
@@ -90,12 +90,29 @@ task :precompile do
   end
 end
 
-after "rsync:stage", "precompile"
+after "rsync:stage_done", "precompile"
 ```
 
 ### Deploy release without symlinking the current directory
 ```
 cap rsync:release
+```
+
+Troubleshooting
+---------------
+If you need to hook after rsync:stage_done in your deploy.rb, the rsync namespace is not loaded yet.
+
+So do it like this in your deploy.rb:
+```
+namespace :rsync do
+    # Create an empty task to hook with. Implementation will be come next
+    task :stage_done
+
+    # Then add your hook
+    after :stage_done, :my_task do
+      # Do some stuff.
+    end
+end
 ```
 
 

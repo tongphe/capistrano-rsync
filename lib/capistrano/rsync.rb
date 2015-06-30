@@ -1,31 +1,25 @@
 require File.expand_path("../rsync/version", __FILE__)
 
-namespace :load do
-  task :defaults do
+set_if_empty :rsync_options, []
+set_if_empty :rsync_copy, "rsync --archive --acls --xattrs"
 
-    set :rsync_options, []
-    set :rsync_copy, "rsync --archive --acls --xattrs"
+# Sparse checkout allows to checkout only part of the repository
+set_if_empty :rsync_sparse_checkout, []
 
-    # Sparse checkout allows to checkout only part of the repository
-    set :rsync_sparse_checkout, []
+# You may not need the whole history, put to false to get it whole
+set_if_empty :rsync_depth, 1
 
-    # You may not need the whole history, put to false to get it whole
-    set :rsync_depth, 1
+# Stage is used on your local machine for rsyncing from.
+set_if_empty :rsync_stage, "tmp/deploy"
 
-    # Stage is used on your local machine for rsyncing from.
-    set :rsync_stage, "tmp/deploy"
+# Cache is used on the server to copy files to from to the release directory.
+# Saves you rsyncing your whole app folder each time.  If you nil rsync_cache,
+# Capistrano::Rsync will sync straight to the release path.
+set_if_empty :rsync_cache, "shared/deploy"
 
-    # Cache is used on the server to copy files to from to the release directory.
-    # Saves you rsyncing your whole app folder each time.  If you nil rsync_cache,
-    # Capistrano::Rsync will sync straight to the release path.
-    set :rsync_cache, "shared/deploy"
+set_if_empty :rsync_target_dir, ""
 
-    set :rsync_target_dir, ""
-
-    set :enable_git_submodules, false
-  end
-end
-
+set_if_empty :enable_git_submodules, false
 
 # NOTE: Please don't depend on tasks without a description (`desc`) as they
 # might change between minor or patch version releases. They make up the
@@ -46,7 +40,7 @@ end
 Rake::Task["deploy:check"].enhance ["rsync:hook_scm"]
 
 desc "Stage and rsync to the server (or its cache)."
-task :rsync => %w[rsync:stage] do
+task :rsync => %w[rsync:stage_done] do
   on release_roles(:all) do |role|
     user = role.user + "@" if !role.user.nil?
 
@@ -55,6 +49,7 @@ task :rsync => %w[rsync:stage] do
     rsync << File.join(fetch(:rsync_stage), File.join(fetch(:rsync_target_dir), ""))
     rsync << "#{user}#{role.hostname}:#{rsync_cache.call || release_path}"
 
+    puts *rsync
     Kernel.system *rsync
   end
 end
@@ -163,14 +158,16 @@ namespace :rsync do
       Kernel.system *update
 
       if fetch(:enable_git_submodules)
-	submodules = %W[git submodule update]
-	Kernel.system *submodules
+        submodules = %W[git submodule update]
+        Kernel.system *submodules
       end
 
       checkout = %W[git reset --quiet --hard #{rsync_target.call}]
       Kernel.system *checkout
     end
   end
+
+  task :stage_done => %w[stage]
 
   desc "Copy the code to the releases directory."
   task :release => %w[rsync] do
