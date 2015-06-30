@@ -33,8 +33,13 @@ rsync_cache = lambda do
 end
 
 rsync_target = lambda do
-  target = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : fetch(:branch)
+  target = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : "origin/#{fetch(:branch)}"
   target
+end
+
+rsync_branch = lambda do
+  branch = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : fetch(:branch)
+  branch
 end
 
 Rake::Task["deploy:check"].enhance ["rsync:hook_scm"]
@@ -129,7 +134,7 @@ namespace :rsync do
           pull << "--depth=#{fetch(:rsync_depth)}"
         end
         pull << "origin"
-        pull << rsync_target.call
+        pull << rsync_branch.call
         Kernel.system *pull
       end
     else
