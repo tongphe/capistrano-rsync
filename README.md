@@ -129,6 +129,10 @@ rsync_cache   | `shared/deploy` | Path where to cache your repository on the ser
 rsync_options | `[]` | Array of options to pass to `rsync`.
 rsync_sparse_checkout | `[]` | Array of directories to checkout (checks out all if empty)
 rsync_depth   | `1` | Sets the --depth argument value for the git operations; this is set to 1 by default as you won't need the git history
+rsync_checkout_tag  | `false` | Is the ``:branch`` symbol containing a branch or a tag?
+rsync_copy    | `rsync --archive --acls --xattrs` | The command used to copy from remote cache to remote release
+rsync_target_dir | `.` | The local directory within ``:rsync_stage`` to clone to & deploy (useful if you want to keep cache of several branches/tags for instance)
+enable_git_submodules | `false` | Should we fetch submodules as well?
 
 
 License

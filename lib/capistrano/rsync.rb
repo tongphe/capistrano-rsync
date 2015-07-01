@@ -1,10 +1,15 @@
 require File.expand_path("../rsync/version", __FILE__)
 
-set_if_empty :rsync_options, []
+set_if_empty :rsync_options, [
+  '--archive'
+]
 set_if_empty :rsync_copy, "rsync --archive --acls --xattrs"
 
 # Sparse checkout allows to checkout only part of the repository
 set_if_empty :rsync_sparse_checkout, []
+
+# Sparse checkout allows to checkout only part of the repository
+set_if_empty :rsync_checkout_tag, false
 
 # You may not need the whole history, put to false to get it whole
 set_if_empty :rsync_depth, 1
@@ -17,7 +22,7 @@ set_if_empty :rsync_stage, "tmp/deploy"
 # Capistrano::Rsync will sync straight to the release path.
 set_if_empty :rsync_cache, "shared/deploy"
 
-set_if_empty :rsync_target_dir, ""
+set_if_empty :rsync_target_dir, "."
 
 set_if_empty :enable_git_submodules, false
 
@@ -42,20 +47,27 @@ rsync_branch = lambda do
   branch
 end
 
+git_depth = lambda do
+  depth = !!fetch(:rsync_depth, false) ? "--depth=#{fetch(:rsync_depth)}" : ""
+  depth
+end
+
 Rake::Task["deploy:check"].enhance ["rsync:hook_scm"]
 
+# Local -> Remote cache
 desc "Stage and rsync to the server (or its cache)."
 task :rsync => %w[rsync:stage_done] do
   on release_roles(:all) do |role|
     user = role.user + "@" if !role.user.nil?
 
-    rsync = %w[rsync]
-    rsync.concat fetch(:rsync_options)
-    rsync << File.join(fetch(:rsync_stage), File.join(fetch(:rsync_target_dir), ""))
-    rsync << "#{user}#{role.hostname}:#{rsync_cache.call || release_path}"
-
-    puts *rsync
-    Kernel.system *rsync
+    run_locally do
+      within fetch(:rsync_stage) do
+        execute :rsync,
+            fetch(:rsync_options),
+            fetch(:rsync_target_dir),
+            "#{user}#{role.hostname}:#{rsync_cache.call || release_path}"
+      end
+    end
   end
 end
 
@@ -96,84 +108,66 @@ namespace :rsync do
     end
   end
 
+  # Git first time -> Local
   task :create_stage do
     next if File.directory?(fetch(:rsync_stage))
     next if !has_roles?
 
     if fetch(:rsync_sparse_checkout, []).any?
-      init = %W[git init --quiet]
-      init << fetch(:rsync_stage)
+      run_locally do
+        execute :git, :init, '--quiet', fetch(:rsync_stage)
+        within fetch(:rsync_stage) do
+          execute :git, :remote, :add, :origin, fetch(:repo_url)
 
-      Kernel.system *init
+          execute :git, :fetch, '--quiet --prune --all -t', "#{git_depth.call}"
 
-      Dir.chdir fetch(:rsync_stage) do
-        remote = %W[git remote add origin]
-        remote << fetch(:repo_url)
-        Kernel.system *remote
+          execute :git, :config, 'core.sparsecheckout true'
+          execute :mkdir, '.git/info'
+          open(File.join(fetch(:rsync_stage), '.git/info/sparse-checkout'), 'a') { |f|
+            fetch(:rsync_sparse_checkout).each do |sparse_dir|
+              f.puts sparse_dir
+            end
+          }
 
-        fetch = %W[git fetch --quiet --prune --all -t]
-        if !!fetch(:rsync_depth, false)
-          fetch << "--depth=#{fetch(:rsync_depth)}"
+          execute :git, :pull, '--quiet', "#{git_depth.call}", :origin, "#{rsync_branch.call}"
         end
-        Kernel.system *fetch
-
-        sparse = %W[git config core.sparsecheckout true]
-        Kernel.system *sparse
-
-        sparse_dir = %W[mkdir .git/info]
-        Kernel.system *sparse_dir
-
-        open('.git/info/sparse-checkout', 'a') { |f|
-          fetch(:rsync_sparse_checkout).each do |sparse_dir|
-            f.puts sparse_dir
-          end
-        }
-
-        pull = %W[git pull --quiet]
-        if !!fetch(:rsync_depth, false)
-          pull << "--depth=#{fetch(:rsync_depth)}"
-        end
-        pull << "origin"
-        pull << rsync_branch.call
-        Kernel.system *pull
       end
     else
-      clone = %W[git clone --quiet]
-      clone << fetch(:repo_url, ".")
-      clone << fetch(:rsync_stage)
-      if !!fetch(:rsync_depth, false)
-        clone << "--depth=#{fetch(:rsync_depth)}"
+      submodules = !!fetch(:enable_git_submodules) ? "--recursive" : ""
+      run_locally do
+        execute :git,
+          :clone,
+          '--quiet',
+          fetch(:repo_url),
+          fetch(:rsync_stage),
+          "#{git_depth.call}",
+          "#{submodules}"
       end
-      if fetch(:enable_git_submodules)
-        clone << "--recursive"
-      end
-      Kernel.system *clone
     end
   end
 
+  # Git update -> Local
   desc "Stage the repository in a local directory."
   task :stage => %w[create_stage] do
     next if !has_roles?
 
-    Dir.chdir fetch(:rsync_stage) do
-      update = %W[git fetch --quiet --all --prune]
-      if !!fetch(:rsync_depth, false)
-        update << "--depth=#{fetch(:rsync_depth)}"
-      end
-      Kernel.system *update
+    run_locally do
+      within fetch(:rsync_stage) do
+        tags = !!fetch(:rsync_checkout_tag, false) ? '--tags' : ''
+        execute :git, :fetch, '--quiet --all --prune', "#{tags}", "#{git_depth.call}"
 
-      if fetch(:enable_git_submodules)
-        submodules = %W[git submodule update]
-        Kernel.system *submodules
-      end
+        if fetch(:enable_git_submodules)
+          execute :git, :submodule, :update
+        end
 
-      checkout = %W[git reset --quiet --hard #{rsync_target.call}]
-      Kernel.system *checkout
+        execute :git, :reset, '--quiet', '--hard', "#{rsync_target.call}"
+      end
     end
   end
 
   task :stage_done => %w[stage]
 
+  # Remote Cache -> Remote Release
   desc "Copy the code to the releases directory."
   task :release => %w[rsync] do
     # Skip copying if we've already synced straight to the release directory.
