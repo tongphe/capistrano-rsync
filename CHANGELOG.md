@@ -1,3 +1,8 @@
+## 1.3.0 (Jul 2, 2015)
+- Refactored library to use run_locally and execute from Capistrano, so the output is uniformized & we exit on failed commands
+- Added some options as well (see README.md for complete list)
+- [BC BREAK] Execution context may have changed, if you've overridden some options taking into account execution path for instance.
+
 ## 1.1.0 (Jan 17, 2015)
 - Added ``:rsync_sparse_checkout`` option
 

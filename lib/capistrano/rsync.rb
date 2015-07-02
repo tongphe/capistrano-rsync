@@ -52,6 +52,11 @@ git_depth = lambda do
   depth
 end
 
+git_depth_clone = lambda do
+  depth = !!fetch(:rsync_depth, false) ? "--depth=#{fetch(:rsync_depth)} --no-single-branch" : ""
+  depth
+end
+
 Rake::Task["deploy:check"].enhance ["rsync:hook_scm"]
 
 # Local -> Remote cache
@@ -140,7 +145,7 @@ namespace :rsync do
           '--quiet',
           fetch(:repo_url),
           fetch(:rsync_stage),
-          "#{git_depth.call}",
+          "#{git_depth_clone.call}",
           "#{submodules}"
       end
     end
@@ -157,7 +162,7 @@ namespace :rsync do
         execute :git, :fetch, '--quiet --all --prune', "#{tags}", "#{git_depth.call}"
 
         execute :git, :reset, '--quiet', '--hard', "#{rsync_target.call}"
-        
+
         if fetch(:enable_git_submodules)
           execute :git, :submodule, :update
         end
