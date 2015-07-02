@@ -180,7 +180,7 @@ namespace :rsync do
     next if !has_roles?
 
     copy = %(#{fetch(:rsync_copy)} "#{rsync_cache.call}/" "#{release_path}/")
-    on roles(:all) do |host|
+    on release_roles(:all) do |host|
       execute copy
     end
   end
