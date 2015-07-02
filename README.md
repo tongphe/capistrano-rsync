@@ -3,12 +3,12 @@ Capistrano::Rsync for Capistrano v3
 
 [![Join the chat at https://gitter.im/Bladrak/capistrano-rsync](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Bladrak/capistrano-rsync?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Gem Version](https://badge.fury.io/rb/capistrano-rsync-bladrak.svg)](http://badge.fury.io/rb/capistrano-rsync-bladrak)
+[gem-badge]: https://badge.fury.io/rb/capistrano-rsync-bladrak.svg
+
 This repository is a fork of https://github.com/moll/capistrano-rsync which doesn't seem to be maintained anymore.
 
 It has all the capabilities of the original repo, and some other features. Moreover, I will try to maintain it.  
-
-[![Gem Version](https://badge.fury.io/rb/capistrano-rsync-bladrak.svg)](http://badge.fury.io/rb/capistrano-rsync-bladrak)
-[gem-badge]: https://badge.fury.io/rb/capistrano-rsync-bladrak.svg
 
 **Deploy with Rsync** to your server from any local (or remote) repository when
 using [**Capistrano**](http://www.capistranorb.com/).  Saves you from having to
