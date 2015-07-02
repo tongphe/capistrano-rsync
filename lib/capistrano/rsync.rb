@@ -156,11 +156,11 @@ namespace :rsync do
         tags = !!fetch(:rsync_checkout_tag, false) ? '--tags' : ''
         execute :git, :fetch, '--quiet --all --prune', "#{tags}", "#{git_depth.call}"
 
+        execute :git, :reset, '--quiet', '--hard', "#{rsync_target.call}"
+        
         if fetch(:enable_git_submodules)
           execute :git, :submodule, :update
         end
-
-        execute :git, :reset, '--quiet', '--hard', "#{rsync_target.call}"
       end
     end
   end
