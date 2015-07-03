@@ -49,7 +49,7 @@ Set rsync as the SCM to use
 set :scm, :rsync
 ```
 
-Set some `rsync_options` to your liking:
+Optionally set some `rsync_options` to your liking:
 ```ruby
 set :rsync_options, %w[--recursive --delete --delete-excluded --exclude .git*]
 ```
