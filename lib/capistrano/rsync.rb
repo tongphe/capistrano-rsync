@@ -167,6 +167,8 @@ namespace :rsync do
         execute :git, :reset, '--quiet', '--hard', "#{rsync_target.call}"
 
         if fetch(:enable_git_submodules)
+          execute :git, :submodule, :foreach, "git reset --hard HEAD"
+
           execute :git, :submodule, :update
         end
       end
