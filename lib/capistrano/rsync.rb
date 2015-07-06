@@ -158,8 +158,11 @@ namespace :rsync do
 
     run_locally do
       within fetch(:rsync_stage) do
-        tags = !!fetch(:rsync_checkout_tag, false) ? '--tags' : ''
-        execute :git, :fetch, '--quiet --all --prune', "#{tags}", "#{git_depth.call}"
+        execute :git, :fetch, '--quiet --all --prune', "#{git_depth.call}"
+
+        if !!fetch(:rsync_checkout_tag, false)
+          execute :git, :fetch, '--quiet --tags'
+        end
 
         execute :git, :reset, '--quiet', '--hard', "#{rsync_target.call}"
 
