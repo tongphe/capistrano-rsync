@@ -26,6 +26,8 @@ set_if_empty :rsync_target_dir, "."
 
 set_if_empty :enable_git_submodules, false
 
+set_if_empty :reset_git_submodules_before_update, false
+
 # NOTE: Please don't depend on tasks without a description (`desc`) as they
 # might change between minor or patch version releases. They make up the
 # private API and internals of Capistrano::Rsync. If you think something should
@@ -167,6 +169,10 @@ namespace :rsync do
         execute :git, :reset, '--quiet', '--hard', "#{rsync_target.call}"
 
         if fetch(:enable_git_submodules)
+          if fetch(:reset_git_submodules_before_update)
+            execute :git, :submodule, :foreach, "git reset --hard HEAD"
+          end
+
           execute :git, :submodule, :update
         end
       end
