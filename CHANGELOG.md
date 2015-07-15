@@ -1,5 +1,5 @@
-## 1.3.1 (Jul 15, 2015)
-- Adds support for checking out revisions on top of tags and branches
+## 1.3.3 (Jul 15, 2015)
+- Adds support for checking out revisions on top of tags and branches (rsync_checkout_tag is now deprecated)
 
 ## 1.3.0 (Jul 2, 2015)
 - Refactored library to use run_locally and execute from Capistrano, so the output is uniformized & we exit on failed commands
