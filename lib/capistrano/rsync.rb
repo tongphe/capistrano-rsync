@@ -8,8 +8,16 @@ set_if_empty :rsync_copy, "rsync --archive --acls --xattrs"
 # Sparse checkout allows to checkout only part of the repository
 set_if_empty :rsync_sparse_checkout, []
 
-# Sparse checkout allows to checkout only part of the repository
+# Merely here for backward compatibility reasons
 set_if_empty :rsync_checkout_tag, false
+
+# Option states what to checkout
+set_if_empty :rsync_checkout, "branch"
+
+# To be somewhat backward compatible to the previous checkout_tag option
+if fetch(:rsync_checkout_tag, false)
+  set :rsync_checkout, "tag"
+end
 
 # You may not need the whole history, put to false to get it whole
 set_if_empty :rsync_depth, 1
@@ -40,12 +48,24 @@ rsync_cache = lambda do
 end
 
 rsync_target = lambda do
-  target = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : "origin/#{fetch(:branch)}"
+  case fetch(:rsync_checkout)
+    when "tag"
+      target = "tags/#{fetch(:branch)}"
+    when "revision"
+      target = fetch(:branch)
+    else
+      target = "origin/#{fetch(:branch)}"
+    end
   target
 end
 
 rsync_branch = lambda do
-  branch = !!fetch(:rsync_checkout_tag, false) ? "tags/#{fetch(:branch)}" : fetch(:branch)
+  if fetch(:rsync_checkout) == "tag"
+    branch = "tags/#{fetch(:branch)}"
+  else
+    branch = fetch(:branch)
+  end
+
   branch
 end
 
