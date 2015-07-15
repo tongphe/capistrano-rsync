@@ -48,14 +48,14 @@ rsync_cache = lambda do
 end
 
 rsync_target = lambda do
-  if fetch(:rsync_checkout) == "tag"
-    target = "tags/#{fetch(:branch)}"
-  elsif fetch(:rsync_checkout) == "revision"
-    target = fetch(:branch)
-  else
-    target = "origin/#{fetch(:branch)}"
-  end
-
+  case fetch(:rsync_checkout)
+    when "tag"
+      target = "tags/#{fetch(:branch)}"
+    when "revision"
+      target = fetch(:branch)
+    else
+      target = "origin/#{fetch(:branch)}"
+    end
   target
 end
 
