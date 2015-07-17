@@ -32,6 +32,9 @@ set_if_empty :rsync_cache, "shared/deploy"
 
 set_if_empty :rsync_target_dir, "."
 
+# Creates opportunity to define remote other than origin
+set_if_empty :git_remote, "origin"
+
 set_if_empty :enable_git_submodules, false
 
 set_if_empty :reset_git_submodules_before_update, false
@@ -50,18 +53,18 @@ end
 rsync_target = lambda do
   case fetch(:rsync_checkout)
     when "tag"
-      target = "tags/#{fetch(:branch)}"
+      target = "#{fetch(:git_remote)}/tags/#{fetch(:branch)}"
     when "revision"
       target = fetch(:branch)
     else
-      target = "origin/#{fetch(:branch)}"
+      target = "#{fetch(:git_remote)}/#{fetch(:branch)}"
     end
   target
 end
 
 rsync_branch = lambda do
   if fetch(:rsync_checkout) == "tag"
-    branch = "tags/#{fetch(:branch)}"
+    branch = "#{fetch(:git_remote)}/tags/#{fetch(:branch)}"
   else
     branch = fetch(:branch)
   end

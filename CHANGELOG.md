@@ -1,3 +1,6 @@
+## 1.3.4 (Jul 17, 2015)
+- Added ``:git_remote`` option. Gives the opportunity to define some other remote that ``origin``.
+
 ## 1.3.3 (Jul 15, 2015)
 - Adds support for checking out revisions on top of tags and branches (rsync_checkout_tag is now deprecated)
 
