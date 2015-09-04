@@ -53,7 +53,7 @@ end
 rsync_target = lambda do
   case fetch(:rsync_checkout)
     when "tag"
-      target = "#{fetch(:git_remote)}/tags/#{fetch(:branch)}"
+      target = "tags/#{fetch(:branch)}"
     when "revision"
       target = fetch(:branch)
     else
@@ -64,7 +64,7 @@ end
 
 rsync_branch = lambda do
   if fetch(:rsync_checkout) == "tag"
-    branch = "#{fetch(:git_remote)}/tags/#{fetch(:branch)}"
+    branch = "tags/#{fetch(:branch)}"
   else
     branch = fetch(:branch)
   end
