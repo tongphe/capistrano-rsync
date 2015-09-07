@@ -1,3 +1,7 @@
+## 1.3.5 (Sep 7, 2015)
+- Adds clean command to submodules to remove untracking files.
+- Rectifies the tag deployment.
+
 ## 1.3.4 (Jul 17, 2015)
 - Added ``:git_remote`` option. Gives the opportunity to define some other remote that ``origin``.
 
