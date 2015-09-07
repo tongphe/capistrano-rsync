@@ -137,7 +137,7 @@ rsync_checkout_tag  | `false` | Is the ``:branch`` symbol containing a branch or
 rsync_copy    | `rsync --archive --acls --xattrs` | The command used to copy from remote cache to remote release
 rsync_target_dir | `.` | The local directory within ``:rsync_stage`` to clone to & deploy (useful if you want to keep cache of several branches/tags for instance)
 enable_git_submodules | `false` | Should we fetch submodules as well?
-reset_git_submodules_before_update | `false` | Do a reset hard on submodules (in case you do modifications on working copies)?
+reset_git_submodules_before_update | `false` | Do a reset hard and clean force on submodules (in case you do modifications on working copies)?
 
 
 License
