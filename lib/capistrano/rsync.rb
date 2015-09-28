@@ -113,7 +113,7 @@ namespace :rsync do
 
     run_locally do
       within fetch(:rsync_stage) do
-        rev = capture(:git, 'rev-parse', 'HEAD').strip!
+        rev = capture(:git, 'rev-parse', 'HEAD').strip
         set :current_revision, rev
       end
     end
