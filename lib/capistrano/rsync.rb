@@ -12,12 +12,7 @@ set_if_empty :rsync_sparse_checkout, []
 set_if_empty :rsync_checkout_tag, false
 
 # Option states what to checkout
-set_if_empty :rsync_checkout, "branch"
-
-# To be somewhat backward compatible to the previous checkout_tag option
-if fetch(:rsync_checkout_tag, false)
-  set :rsync_checkout, "tag"
-end
+set_if_empty :rsync_checkout, -> { fetch(:rsync_checkout_tag, false) ? "tag" : "branch"}
 
 # You may not need the whole history, put to false to get it whole
 set_if_empty :rsync_depth, 1
