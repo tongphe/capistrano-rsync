@@ -188,7 +188,7 @@ namespace :rsync do
 
         if fetch(:enable_git_submodules)
           if fetch(:reset_git_submodules_before_update)
-            execute :git, :submodule, :foreach, "'git reset --hard HEAD && git clean -qfd'"
+            execute :git, :submodule, :foreach, "'git reset --hard HEAD && git clean -qfd && git fetch -t'"
           end
 
           execute :git, :submodule, :update
