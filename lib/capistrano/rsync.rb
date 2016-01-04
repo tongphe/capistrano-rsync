@@ -84,11 +84,16 @@ desc "Stage and rsync to the server (or its cache)."
 task :rsync => %w[rsync:stage_done] do
   on release_roles(:all) do |role|
     user = role.user + "@" if !role.user.nil?
+    rsync_options = fetch(:rsync_options)
+
+    if !role.port.nil?
+      rsync_options.unshift("-e 'ssh -p #{role.port}'")
+    end
 
     run_locally do
       within fetch(:rsync_stage) do
         execute :rsync,
-            fetch(:rsync_options),
+            rsync_options,
             fetch(:rsync_target_dir),
             "#{user}#{role.hostname}:#{rsync_cache.call || release_path}"
       end
