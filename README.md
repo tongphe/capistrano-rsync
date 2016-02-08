@@ -88,7 +88,7 @@ Capistrano::Rsync runs `rsync:stage_done` before rsyncing. Hook to that like thi
 ```ruby
 task :precompile do
   Dir.chdir fetch(:rsync_stage) do
-    system "rake", "assets:precompile"
+    system "rake", "assets:precompile" or raise
   end
 end
 
