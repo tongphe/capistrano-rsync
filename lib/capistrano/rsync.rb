@@ -34,6 +34,8 @@ set_if_empty :enable_git_submodules, false
 
 set_if_empty :reset_git_submodules_before_update, false
 
+set_if_empty :bypass_git_clone, false
+
 # NOTE: Please don't depend on tasks without a description (`desc`) as they
 # might change between minor or patch version releases. They make up the
 # private API and internals of Capistrano::Rsync. If you think something should
@@ -142,6 +144,7 @@ namespace :rsync do
   task :create_stage do
     next if File.directory?(fetch(:rsync_stage))
     next if !has_roles?
+    next if !bypass_git_clone
 
     if fetch(:rsync_sparse_checkout, []).any?
       run_locally do
@@ -180,6 +183,7 @@ namespace :rsync do
   desc "Stage the repository in a local directory."
   task :stage => %w[create_stage] do
     next if !has_roles?
+    next if !bypass_git_clone
 
     run_locally do
       within fetch(:rsync_stage) do
