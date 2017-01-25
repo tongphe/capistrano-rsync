@@ -1,3 +1,6 @@
+## 1.4.0 (Jan 25, 2017)
+- Adds option to bypass clone stage.
+
 ## 1.3.5 (Sep 7, 2015)
 - Adds clean command to submodules to remove untracking files.
 - Rectifies the tag deployment.

@@ -100,6 +100,11 @@ after "rsync:stage_done", "precompile"
 cap rsync:release
 ```
 
+### Bypass clone stage
+```
+set :bypass_git_clone, true
+```
+
 Troubleshooting
 ---------------
 If you need to hook after rsync:stage_done in your deploy.rb, the rsync namespace is not loaded yet.
