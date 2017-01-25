@@ -144,7 +144,7 @@ namespace :rsync do
   task :create_stage do
     next if File.directory?(fetch(:rsync_stage))
     next if !has_roles?
-    next if !fetch(:bypass_git_clone)
+    next if fetch(:bypass_git_clone)
 
     if fetch(:rsync_sparse_checkout, []).any?
       run_locally do
@@ -183,7 +183,7 @@ namespace :rsync do
   desc "Stage the repository in a local directory."
   task :stage => %w[create_stage] do
     next if !has_roles?
-    next if !fetch(:bypass_git_clone)
+    next if fetch(:bypass_git_clone)
 
     run_locally do
       within fetch(:rsync_stage) do
