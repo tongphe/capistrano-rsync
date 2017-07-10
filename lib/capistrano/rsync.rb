@@ -84,7 +84,7 @@ Rake::Task["deploy:check"].enhance ["rsync:hook_scm"]
 # Local -> Remote cache
 desc "Stage and rsync to the server (or its cache)."
 task :rsync => %w[rsync:stage_done] do
-  on release_roles(:all) do |role|
+  release_roles(:all).each do |role|
     user = role.user + "@" if !role.user.nil?
     rsync_options = fetch(:rsync_options)
 
