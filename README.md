@@ -6,7 +6,9 @@ Capistrano::Rsync for Capistrano v3
 [![Gem Version](https://badge.fury.io/rb/capistrano-rsync-bladrak.svg)](http://badge.fury.io/rb/capistrano-rsync-bladrak)
 [gem-badge]: https://badge.fury.io/rb/capistrano-rsync-bladrak.svg
 
-This repository is a fork of https://github.com/moll/capistrano-rsync which doesn't seem to be maintained anymore.
+
+
+This repository is a fork of <https://github.com/Bladrak/capistrano-rsync> rewritten with Capistrano 3 plugin style.
 
 It has all the capabilities of the original repo, and some other features. Moreover, I will try to maintain it.  
 
