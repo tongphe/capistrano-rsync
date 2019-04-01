@@ -10,6 +10,8 @@ Capistrano::Rsync for Capistrano v3
 
 This repository is a fork of <https://github.com/Bladrak/capistrano-rsync> rewritten with Capistrano 3 plugin style.
 
+The doc below could be outdated, you can check my Capfile example in source code for use.
+
 It has all the capabilities of the original repo, and some other features. Moreover, I will try to maintain it.  
 
 **Deploy with Rsync** to your server from any local (or remote) repository when
